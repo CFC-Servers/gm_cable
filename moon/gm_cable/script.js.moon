@@ -1,3 +1,4 @@
+[[
 var gmSocket = new WebSocket("{{{WEBHOOK_ADDRESS}}}");
 
 gmSocket.onmessage = function(event) {
@@ -24,3 +25,4 @@ gmSocket.getStatus = function() {
 window.socketSend = function(data) {
   gmSocket.send(data);
 };
+]]

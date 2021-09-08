@@ -1,19 +1,47 @@
 import insert from table
 import JavascriptSafe, Replace from string
 
-local HTML
+-- TODO: Set up the JS file to be downloaded reliably
+export CableHTML = [[
+var gmSocket = new WebSocket("{{{WEBHOOK_ADDRESS}}}");
 
-hook.Add "InitPostEntity", "GMCable_Load_HTML", ->
-    AsyncRead "gm_cable/script.js", "LUA", (fileName, gamePath, status, data) ->
-        if status ~= FSASYNC_OK
-            error fileName, gamePath, status
+gmSocket.onmessage = function(event) {
+  window.socketMessage(event.data);
+};
 
-        HTML = "<script>#{data}</script>"
+gmSocket.onopen = function() {
+  window.socketOpen();
+};
 
-createHTML = (address, html=HTML) ->
+gmSocket.onclose = function() {
+  window.socketClose();
+};
+
+gmSocket.onerror = function() {
+  window.socketError();
+};
+
+gmSocket.getStatus = function() {
+  window.socketStatus(gmSocket.readyState);
+};
+
+// Call from Lua
+window.socketSend = function(data) {
+  gmSocket.send(data);
+};
+]]
+
+CableHTML = "<script>#{CableHTML}</script>"
+
+--hook.Add "InitPostEntity", "GMCable_Load_HTML", ->
+--    AsyncRead "gm_cable/script.js", "LUA", (fileName, gamePath, status, data) ->
+--        if status ~= FSASYNC_OK
+--            error fileName, gamePath, status
+--
+--        CableHTML = "<script>#{data}</script>"
+
+export createHTML = (address, html=CableHTML) ->
     Replace html, "{{{WEBHOOK_ADDRESS}}}", address
-
-    return html
 
 export class Cable
     new: (address, port="443", protocol="wss") =>
@@ -33,16 +61,16 @@ export class Cable
             .Paint = () -> nil
 
         with @html = vgui.Create "DHTML", @panel
-            \AddFunction "window", "socketMessage", @_message
-            \AddFunction "window", "socketOpen", @_open
-            \AddFunction "window", "socketClose", @_close
-            \AddFunction "window", "socketError", @_error
-            \AddFunction "window", "socketStatus", @_status
+            \AddFunction "window", "socketMessage", @\_message
+            \AddFunction "window", "socketOpen", @\_open
+            \AddFunction "window", "socketClose", @\_close
+            \AddFunction "window", "socketError", @\_error
+            \AddFunction "window", "socketStatus", @\_status
             \SetAllowLua true
             \SetHTML createHTML @address
 
     runCbs: (event, ...) =>
-        cb(...) for cb in @listeners[event]
+        cb(...) for cb in *@listeners[event]
 
     _message: (msg) =>
         @runCbs "message", msg
@@ -57,8 +85,8 @@ export class Cable
         @runCbs "err"
 
     _status: (status) =>
-        @runcbs "status", status
-        @listeners.event = {}
+        @runCbs "status", status
+        @listeners.status = {}
 
     on: (event, cb) =>
         insert @listeners[event], cb
