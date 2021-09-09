@@ -1,50 +1,10 @@
 import insert from table
+import AsyncRead from file
 import JavascriptSafe, Replace from string
-
--- TODO: Set up the JS file to be downloaded reliably
-export CableHTML = [[
-var gmSocket = new WebSocket("{{{WEBHOOK_ADDRESS}}}");
-
-gmSocket.onmessage = function(event) {
-  window.socketMessage(event.data);
-};
-
-gmSocket.onopen = function() {
-  window.socketOpen();
-};
-
-gmSocket.onclose = function() {
-  window.socketClose();
-};
-
-gmSocket.onerror = function() {
-  window.socketError();
-};
-
-gmSocket.getStatus = function() {
-  window.socketStatus(gmSocket.readyState);
-};
-
-// Call from Lua
-window.socketSend = function(data) {
-  gmSocket.send(data);
-};
-]]
-
-CableHTML = "<script>#{CableHTML}</script>"
-
---hook.Add "InitPostEntity", "GMCable_Load_HTML", ->
---    AsyncRead "gm_cable/script.js", "LUA", (fileName, gamePath, status, data) ->
---        if status ~= FSASYNC_OK
---            error fileName, gamePath, status
---
---        CableHTML = "<script>#{data}</script>"
-
-export createHTML = (address, html=CableHTML) ->
-    Replace html, "{{{WEBHOOK_ADDRESS}}}", address
+import TableToJSON from util
 
 export class Cable
-    new: (address, port="443", protocol="wss") =>
+    new: (address, port="443", secure=true) =>
         @listeners =
             message: {}
             open: {}
@@ -52,8 +12,10 @@ export class Cable
             err: {}
             status: {}
 
+        protocol = secure and "wss" or "ws"
         @address = "#{protocol}://#{address}:#{port}"
 
+    _connect: =>
         with @panel = vgui.Create "DFrame"
             \SetSize 0, 0
             \SetTitle ""
@@ -69,35 +31,55 @@ export class Cable
             \SetAllowLua true
             \SetHTML createHTML @address
 
-    runCbs: (event, ...) =>
+    _runCbs: (event, ...) =>
         cb(...) for cb in *@listeners[event]
 
     _message: (msg) =>
-        @runCbs "message", msg
+        @_runCbs "message", msg
 
     _open: =>
-        @runCbs "open"
+        @_runCbs "open"
 
     _close: =>
-        @runCbs "close"
+        @_runCbs "close"
 
     _error: =>
-        @runCbs "err"
+        @_runCbs "err"
 
     _status: (status) =>
-        @runCbs "status", status
+        @_runCbs "status", status
         @listeners.status = {}
 
-    on: (event, cb) =>
-        insert @listeners[event], cb
+    on: (cable, event) ->
+        call: (cb) =>
+            insert cable.listeners[event], cb
 
-    status: (cb) =>
+    Connect: => @_connect!
+
+    Close: =>
+        @html\RunJavascript "gmSocket.close();"
+        timer.Simple 0, -> @panel\Close!
+
+    Status: (cb) =>
         @on "status", cb
         @html\RunJavascript "gmSocket.getStatus();"
 
-    close: =>
-        @html\RunJavascript "gmSocket.close();"
-
-    send: (msg) =>
+    SendMessage: (msg) =>
         safe = JavascriptSafe msg
         @html\RunJavascript "window.socketSend('#{safe}');"
+
+    SendData: (data) =>
+        safe = JavascriptSafe TableToJSON data
+        @html\RunJavascript "window.socketSend('#{safe}');"
+
+local HTML
+
+AsyncRead "js/websockets.js", "DOWNLOAD", (fileName, gamePath, status, data) ->
+    if status ~= FSASYNC_OK
+        error fileName, gamePath, status
+
+    HTML = "<script>#{data}</script>"
+
+createHTML = (address, html=HTML) ->
+    Replace html, "{{{WEBHOOK_ADDRESS}}}", address
+
