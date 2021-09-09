@@ -49,7 +49,7 @@ myCable:SendMessage( "Hello!" )
 
 ### Connecting
  - `myCable:Connect()`
-   - Actually establishes the connection - the Cable is completely inactive before calling this method.
+   - Actually establishes the connection - the Cable is completely inactive before calling this method
 
 ### Callbacks
  - The basic formula for callbacks is as follows:
@@ -64,7 +64,7 @@ myCable:on( string eventName ):call( func callback )
 
 ### Status
  - `myCable:Status( func callback )`
-   - Retrieving the status isn't immediate. You'll need to pass a callback that will be called with the Websocket's status code.
+   - Retrieving the status isn't immediate. You'll need to pass a callback that will be called with the Websocket's status code
 
 ### Sending data
  - `myCable:SendMessage( string message )`
@@ -75,4 +75,4 @@ myCable:on( string eventName ):call( func callback )
 
 ### Closing
  - `myCable:Close()`
-  - Closes the connection politely. Can be re-established using `myCable:Connect()` at any time
+    - Closes the connection politely. Can be re-established using `myCable:Connect()` at any time
