@@ -48,8 +48,8 @@ myCable:SendMessage( "Hello!" )
   - The `secure` parameter determines which protocol is used. `true` for `wss://`, `false` for `ws://`
 
 ### Connecting
- - `myCable:Connect()`
-   - Actually establishes the connection - the Cable is completely inactive before calling this method
+**`myCable:Connect()`**
+ - Actually establishes the connection - the Cable is completely inactive before calling this method
 
 ### Callbacks
  - The basic formula for callbacks is as follows:
@@ -63,16 +63,16 @@ myCable:on( string eventName ):call( func callback )
    - **`close`**: Called when the connection is politely closed
 
 ### Status
- - `myCable:Status( func callback )`
-   - Retrieving the status isn't immediate. You'll need to pass a callback that will be called with the Websocket's status code
+**`myCable:Status( func callback )`**
+ - Retrieving the status isn't immediate. You'll need to pass a callback that will be called with the Websocket's status code
 
 ### Sending data
- - `myCable:SendMessage( string message )`
-   - Sends a basic string over the Websocket
+**`myCable:SendMessage( string message )`**
+ - Sends a basic string over the Websocket
 
- - `myCable:SendData( table dataTable )`
-    - Sends a json-ified Lua table
+**`myCable:SendData( table dataTable )`**
+ - Sends a json-ified Lua table
 
 ### Closing
- - `myCable:Close()`
-    - Closes the connection politely. Can be re-established using `myCable:Connect()` at any time
+**`myCable:Close()`**
+ - Closes the connection politely. Can be re-established using `myCable:Connect()` at any time
