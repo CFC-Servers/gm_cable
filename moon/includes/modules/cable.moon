@@ -3,6 +3,10 @@ import AsyncRead from file
 import JavascriptSafe, Replace from string
 import TableToJSON from util
 
+local HTML
+createHTML = (address, html=HTML) ->
+    Replace html, "{{{WEBHOOK_ADDRESS}}}", address
+
 export class Cable
     new: (address, port="443", secure=true) =>
         @listeners =
@@ -72,14 +76,9 @@ export class Cable
         safe = JavascriptSafe TableToJSON data
         @html\RunJavascript "window.socketSend('#{safe}');"
 
-local HTML
-
 AsyncRead "js/websockets.js", "DOWNLOAD", (fileName, gamePath, status, data) ->
     if status ~= FSASYNC_OK
         error fileName, gamePath, status
 
     HTML = "<script>#{data}</script>"
-
-createHTML = (address, html=HTML) ->
-    Replace html, "{{{WEBHOOK_ADDRESS}}}", address
 
