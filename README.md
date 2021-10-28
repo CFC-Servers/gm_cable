@@ -16,7 +16,7 @@ The latest pre-compiled versions are available in **[Releases](https://github.co
 ### Git Clone
 <details><summary>Read More</summary>
 <p>
-  Because this project uses Moonscript, keeping it updated via `git` is _slightly_ more involved.
+  Because this project uses Moonscript, keeping it updated via git is _slightly_ more involved.
 
   The `main` branch is where the Moonscript code lives, and the [`lua` branch](https://github.com/CFC-Servers/gm_cable/tree/lua) is a lua-only branch containing the compiled code from the most recent release. You can use the `lua` branch to keep `gm_cable` up to date.
   ```sh
@@ -27,7 +27,7 @@ The latest pre-compiled versions are available in **[Releases](https://github.co
 </p></details>
 
 ## Usage
-Using `gm_sockets` is really straightforward!
+Using `gm_cable` is really straightforward!
 
 Here's a simple example:
 ```lua
