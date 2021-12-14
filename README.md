@@ -2,7 +2,7 @@
 
 A pure-lua clientside-only Websockets implementation for Garry's Mod.
 
-While other implementations require the client to install a binary module, Cable works on all branches out-of-the-box, no action needed from the player!
+While other implementations require the client to install a binary module, Cable works on the `x86-64` branch out-of-the-box, no action needed from the player!
 
 Cable creates a background HTML panel and uses Javascript to create/interact with the Websockets inside of the panel.
 
